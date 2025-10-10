@@ -14,3 +14,5 @@ class Permission extends Model
         return $this->belongsToMany(Role::class, 'permission_role');
     }
 }
+
+//modelo permission con la relacion muchos a muchos con roles
