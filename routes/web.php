@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\PeliculaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -59,4 +60,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/empleado/clientes/{id}/update', [EmpleadoController::class, 'update'])
         ->name('empleado.clientes.update');
 });
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    Route::get('/empleado', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
+    Route::get('/empleado/atrasados', [EmpleadoController::class, 'atrasados'])->name('empleado.atrasados');
+
+    // 🔹 Nueva ruta para el módulo de películas
+    Route::get('/empleado/peliculas', [EmpleadoController::class, 'peliculas'])->name('empleado.peliculas');
+
+    Route::put('/empleado/peliculas/{id}/marcar', [EmpleadoController::class, 'marcarPelicula'])->name('empleado.peliculas.marcar');
+    Route::get('/empleado/peliculas/{id}/historial', [EmpleadoController::class, 'historialPelicula'])->name('empleado.peliculas.historial');
+
+});
+
+// Rentas
+Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])->name('empleado.rentas');
+Route::post('/empleado/rentas', [EmpleadoController::class, 'storeRenta'])->name('empleado.rentas.store');
+Route::put('/empleado/rentas/{id}/devolver', [EmpleadoController::class, 'devolver'])->name('empleado.rentas.devolver');
+Route::get('/empleado/rentas/cargos', [EmpleadoController::class, 'calcularCargos'])->name('empleado.rentas.cargos');
+
+
+Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])
+    ->name('empleado.rentas')
+    ->middleware(['auth', 'verified']);
+
+    Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])
+    ->name('empleado.rentas');
+
+Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])->name('empleado.rentas');
+Route::post('/empleado/rentas', [EmpleadoController::class, 'storeRenta'])->name('empleado.rentas.store');
+Route::put('/empleado/rentas/{id}/devolver', [EmpleadoController::class, 'devolver'])->name('empleado.rentas.devolver');
 

@@ -27,10 +27,15 @@
                             {{ __('Clientes') }}
                         </x-nav-link>
 
-                        <x-nav-link :href="route('empleado.atrasados')" :active="request()->routeIs('empleado.atrasados')">
+                        <x-nav-link :href="route('empleado.rentas')" :active="request()->routeIs('empleado.rentas')">
                             {{ __('Rentas') }}
                         </x-nav-link>
+
+                        <x-nav-link :href="route('empleado.peliculas')" :active="request()->routeIs('empleado.peliculas')">
+                            {{ __('Películas') }}
+                        </x-nav-link>
                     @endif
+
                 </div>
             </div>
 
@@ -79,9 +84,8 @@
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex"
                             stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
+                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -97,13 +101,19 @@
 
             {{-- Opciones móviles solo para empleados --}}
             @if($user && $user->isRole('empleado'))
-                <x-responsive-nav-link :href="route('empleado.dashboard')" :active="request()->routeIs('empleado.dashboard')">
+                <x-responsive-nav-link :href="route('empleado.dashboard')"
+                    :active="request()->routeIs('empleado.dashboard')">
                     {{ __('Clientes') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('empleado.atrasados')" :active="request()->routeIs('empleado.atrasados')">
-                    {{ __('Rentas') }}
-                </x-responsive-nav-link>
+                <x-nav-link :href="route('empleado.rentas')" :active="request()->routeIs('empleado.rentas')">
+    {{ __('Rentas') }}
+</x-nav-link>
+
+                <x-nav-link :href="route('empleado.peliculas')" :active="request()->routeIs('empleado.peliculas')">
+                    {{ __('Películas') }}
+                </x-nav-link>
+
             @endif
         </div>
 
