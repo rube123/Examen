@@ -1,21 +1,42 @@
+@php
+    $user = Auth::user();
+@endphp
+
+@if($user && $user->isRole('empleado'))
+    <script>
+        window.location.href = "{{ route('empleado.dashboard') }}";
+    </script>
+@endif
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
+    @if ($errors->has('auth'))
+    <div class="p-3 mb-4 bg-red-100 text-red-700 rounded">
+        {{ $errors->first('auth') }}
+    </div>
+@endif
+
 
     @php
-        $user = auth()->user();
-        $role = optional($user->role)->name;
+        $user = Auth::user();
+        $role = optional($user->role)->name; // obtén el nombre del rol desde la relación
+
+        // Si el nombre del rol en la BD está en español, ajusta aquí
         $labels = [
             'admin' => 'Administrador',
-            'employee' => 'Empleado de sucursal',
-            'customer' => 'Cliente',
-            'public' => 'Público general',
+            'empleado' => 'Empleado',
+            'cliente' => 'Cliente',
+            'publico' => 'Público general',
         ];
-        $label = $labels[$role] ?? 'Sin rol';
+
+        $label = $labels[$role] ?? ucfirst($role ?? 'Sin rol');
     @endphp
+
+
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

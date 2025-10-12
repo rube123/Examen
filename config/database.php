@@ -113,6 +113,21 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'sakila' => [
+        'driver' => 'mysql',
+        'host' => env('DB_SAKILA_HOST', '172.28.246.67'),
+        'port' => env('DB_SAKILA_PORT', '3306'),
+        'database' => env('DB_SAKILA_DATABASE', 'sakila'),
+        'username' => env('DB_SAKILA_USERNAME', 'sakila_user'),
+        'password' => env('DB_SAKILA_PASSWORD', '123'),
+        'unix_socket' => env('DB_SOCKET', ''),
+        'charset' => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+        'prefix' => '',
+        'strict' => true,
+        'engine' => null,
+    ],
+
     ],
 
     /*

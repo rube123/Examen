@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EmpleadoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -40,3 +41,9 @@ Route::middleware(['auth'])->get('/whoami', function () {
         'mensaje' => "Has iniciado sesión como: {$label}",
     ]);
 })->name('whoami');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/empleado', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
+    Route::post('/empleado/clientes', [EmpleadoController::class, 'registrarCliente'])->name('empleado.clientes.store');
+    Route::get('/empleado/atrasados', [EmpleadoController::class, 'atrasados'])->name('empleado.atrasados');
+});
