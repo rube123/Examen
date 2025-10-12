@@ -22,7 +22,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    /*public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
 
@@ -31,7 +31,25 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended(route('dashboard', absolute: false));
         return redirect()->intended(route('whoami', absolute: false));
 
+    }*/
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+
+        $request->session()->regenerate();
+
+        // ✅ Registrar la fecha y hora del último acceso
+        $user = Auth::user();
+        $user->update(['last_login_at' => now()]);
+
+        // ✅ Redirigir según su rol
+        if ($user->isRole('empleado')) {
+            return redirect()->route('empleado.dashboard');
+        }
+
+        return redirect()->intended(route('dashboard', absolute: false));
     }
+
 
     /**
      * Destroy an authenticated session.

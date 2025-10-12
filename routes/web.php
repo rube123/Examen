@@ -43,7 +43,20 @@ Route::middleware(['auth'])->get('/whoami', function () {
 })->name('whoami');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
     Route::get('/empleado', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
-    Route::post('/empleado/clientes', [EmpleadoController::class, 'registrarCliente'])->name('empleado.clientes.store');
-    Route::get('/empleado/atrasados', [EmpleadoController::class, 'atrasados'])->name('empleado.atrasados');
+
+    Route::post('/empleado/clientes', [EmpleadoController::class, 'store'])->name('empleado.clientes.store');
+    Route::get('/empleado/clientes/{id}/edit', [EmpleadoController::class, 'edit'])->name('empleado.clientes.edit');
+    Route::put('/empleado/clientes/{id}', [EmpleadoController::class, 'update'])->name('empleado.clientes.update');
+    Route::delete('/empleado/clientes/{id}', [EmpleadoController::class, 'destroy'])->name('empleado.clientes.destroy');
+
+    Route::get('/empleado/clientes/{id}/historial', [EmpleadoController::class, 'historial'])->name('empleado.clientes.historial');
+
+    Route::get('/empleado/atrasados', [EmpleadoController::class, 'atrasados'])
+        ->name('empleado.atrasados');
+    
+    Route::put('/empleado/clientes/{id}/update', [EmpleadoController::class, 'update'])
+        ->name('empleado.clientes.update');
 });
+
