@@ -61,4 +61,15 @@ class User extends Authenticatable
     {
         return optional($this->role)->name === $name;
     }
+
+    public function customer()
+{
+    return $this->belongsToMany(
+        Customer::class,
+        'customer_user',
+        'user_id',
+        'customer_id'
+    )->withPivot([]);
+}
+
 }
