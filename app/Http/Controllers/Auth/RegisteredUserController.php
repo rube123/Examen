@@ -11,12 +11,9 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-<<<<<<< HEAD
+
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Auth\Events\Registered;
-=======
-use App\Models\Role;
->>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
 
 class RegisteredUserController extends Controller
 {
@@ -32,9 +29,6 @@ class RegisteredUserController extends Controller
         return view('auth.register', compact('stores','cities'));
     }
 
-<<<<<<< HEAD
-    public function store(Request $request): RedirectResponse
-=======
     /**
      * Handle an incoming registration request.
      *
@@ -97,7 +91,6 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
         Auth::login($user);
 
-<<<<<<< HEAD
         return redirect()->route('customer.catalog');
 =======
         return redirect(route('dashboard', absolute: false));
@@ -126,7 +119,6 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
->>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
     }
 
 }

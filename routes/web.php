@@ -1,15 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;   // <- IMPORTANTE
 use App\Http\Controllers\Customer\CatalogController;       // <- IMPORTANTE
 use App\Http\Controllers\Customer\AccountController;       // <- IMPORTANTE
-=======
+
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\PeliculaController;
->>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -54,7 +54,6 @@ Route::middleware(['auth'])->get('/whoami', function () {
     ]);
 })->name('whoami');
 
-<<<<<<< HEAD
 // Rutas CUSTOMER (solo un grupo, no dupliques)
 Route::middleware(['auth','verified','role:customer'])
     ->prefix('customer')->name('customer.')
@@ -73,7 +72,7 @@ Route::middleware(['auth','verified','role:customer'])
 if (file_exists(base_path('routes/auth.php'))) {
     require base_path('routes/auth.php');
 }
-=======
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/empleado', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
@@ -132,4 +131,4 @@ Route::prefix('empleado')->middleware(['auth', 'verified'])->group(function () {
 });
 
 
->>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
+
