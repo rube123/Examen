@@ -10,9 +10,6 @@ use App\Http\Controllers\Customer\AccountController;       // <- IMPORTANTE
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\PeliculaController;
 
-use App\Http\Controllers\EmpleadoController;
-use App\Http\Controllers\PeliculaController;
->>>>>>> b9e1e6c (Comentarios)
 
 Route::get('/', function () {
     return view('welcome');
