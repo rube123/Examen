@@ -28,6 +28,7 @@
                         <th class="px-4 py-2 border-b">Actores</th>
                         <th class="px-4 py-2 border-b">Idioma</th>
                         <th class="px-4 py-2 border-b">Año</th>
+                        <th class="px-4 py-2">Stock</th>
                         <th class="px-4 py-2 border-b">Opciones</th>
                     </tr>
                 </thead>
@@ -39,10 +40,11 @@
                             <td class="border px-4 py-2">{{ $p->actors ?? 'Sin actores' }}</td>
                             <td class="border px-4 py-2">{{ $p->language }}</td>
                             <td class="border px-4 py-2 text-center">{{ $p->release_year }}</td>
+                            <td class="px-4 py-2 text-center">{{ $p->stock }}</td>
                             <td class="border px-4 py-2 text-center">
                                 <div class="flex justify-center gap-3">
                                     {{-- Marcar dañada --}}
-                                    <form method="POST" action="{{ route('empleado.peliculas.marcar', $p->inventory_id) }}">
+                                    <form method="POST" action="{{ route('empleado.peliculas.marcar', $p->film_id) }}">
                                         @csrf
                                         @method('PUT')
                                         <input type="hidden" name="status" value="dañada">
@@ -53,7 +55,7 @@
                                     </form>
 
                                     {{-- Ver histórico --}}
-                                    <a href="{{ route('empleado.peliculas.historial', $p->inventory_id) }}"
+                                    <a href="{{ route('empleado.peliculas.historial', $p->film_id) }}"
                                         class="px-4 py-2 border border-black text-black rounded-md shadow-md hover:bg-gray-100 focus:ring-2 focus:ring-gray-400 transition">
                                         Historial
                                     </a>

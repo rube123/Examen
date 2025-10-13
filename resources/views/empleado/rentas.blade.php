@@ -20,7 +20,7 @@
             </div>
         @endif
 
-        {{-- 🔍 Buscador de rentas --}}
+        {{-- 🔍 Buscador y botón Nueva Renta --}}
         <div class="flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-800">Rentas registradas en tu sucursal</h3>
             <button id="abrirModal" class="px-4 py-2 border border-black text-black rounded-md shadow-md hover:bg-gray-100 transition">
@@ -67,14 +67,11 @@
                         </td>
                         <td class="px-4 py-2 text-center">
                             @if (!$r->return_date)
-                                <form action="{{ route('empleado.rentas.devolver', $r->rental_id) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit"
-                                        class="px-4 py-2 border border-black text-black rounded-md shadow-md hover:bg-gray-100 transition">
-                                        Registrar devolución
-                                    </button>
-                                </form>
+                                <!-- Botón para abrir el modal de devolución -->
+                                <button type="button" onclick="abrirModal({{ $r->inventory_id }})"
+                                    class="px-4 py-2 border border-black text-black rounded-md shadow-md hover:bg-gray-100 transition">
+                                    Registrar devolución
+                                </button>
                             @else
                                 <span class="text-gray-400">Completada</span>
                             @endif
@@ -89,7 +86,6 @@
     <div id="modalRenta"
         class="hidden fixed inset-0 bg-gray-700 bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
         <div class="bg-white w-[80%] h-[80%] border-4 border-black rounded-xl shadow-2xl p-10 overflow-y-auto relative">
-
             <h2 class="text-2xl font-bold mb-6">Registrar nueva renta</h2>
 
             <form method="POST" action="{{ route('empleado.rentas.store') }}" class="space-y-4">
@@ -129,13 +125,62 @@
         </div>
     </div>
 
-    {{-- JS del modal y buscador --}}
+    {{-- 🪟 Modal Devolución --}}
+    <div id="modalDevolucion"
+        class="fixed inset-0 hidden bg-gray-700 bg-opacity-60 backdrop-blur-sm z-50 items-center justify-center">
+        <div class="bg-white p-6 rounded-xl border-4 border-black shadow-2xl w-[70%]">
+            <h2 class="text-xl font-bold mb-4">Registrar devolución</h2>
+
+            <form action="{{ route('empleado.historial.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="inventory_id" id="inventory_id_modal">
+
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700">Estado de la película</label>
+                    <select name="estado" class="border w-full p-2 rounded-md">
+                        <option value="Perfecto">Perfecto</option>
+                        <option value="Dañado">Dañado</option>
+                        <option value="Perdido">Perdido</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700">Observaciones</label>
+                    <textarea name="observaciones" rows="3" class="border w-full p-2 rounded-md"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="cerrarModal()"
+                        class="px-4 py-2 border rounded-md hover:bg-gray-100">Cancelar</button>
+                    <button type="submit"
+                        class="px-4 py-2 border border-black rounded-md hover:bg-gray-100">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- JS de modales y buscador --}}
     <script>
+        // Modal nueva renta
         const abrir = document.getElementById('abrirModal');
         const cerrar = document.getElementById('cerrarModal');
         const modal = document.getElementById('modalRenta');
         abrir.addEventListener('click', () => modal.classList.remove('hidden'));
         cerrar.addEventListener('click', () => modal.classList.add('hidden'));
+
+        // Modal devolución
+        function abrirModal(id) {
+            document.getElementById('inventory_id_modal').value = id;
+            const modalDev = document.getElementById('modalDevolucion');
+            modalDev.classList.remove('hidden');
+            modalDev.classList.add('flex');
+        }
+
+        function cerrarModal() {
+            const modalDev = document.getElementById('modalDevolucion');
+            modalDev.classList.add('hidden');
+            modalDev.classList.remove('flex');
+        }
 
         // Buscador
         document.getElementById('buscadorRentas').addEventListener('input', function() {

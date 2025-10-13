@@ -92,3 +92,12 @@ Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])->name('emp
 Route::post('/empleado/rentas', [EmpleadoController::class, 'storeRenta'])->name('empleado.rentas.store');
 Route::put('/empleado/rentas/{id}/devolver', [EmpleadoController::class, 'devolver'])->name('empleado.rentas.devolver');
 
+Route::prefix('empleado')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/historial/{inventory_id}', [App\Http\Controllers\InventoryHistoryController::class, 'show'])
+        ->name('empleado.historial');
+
+    Route::post('/historial', [App\Http\Controllers\InventoryHistoryController::class, 'store'])
+        ->name('empleado.historial.store');
+});
+
+
