@@ -1,10 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+<<<<<<< HEAD
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;   // <- IMPORTANTE
 use App\Http\Controllers\Customer\CatalogController;       // <- IMPORTANTE
 use App\Http\Controllers\Customer\AccountController;       // <- IMPORTANTE
+=======
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\PeliculaController;
+>>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
 
 Route::get('/', function () {
     return view('welcome');
@@ -49,6 +54,7 @@ Route::middleware(['auth'])->get('/whoami', function () {
     ]);
 })->name('whoami');
 
+<<<<<<< HEAD
 // Rutas CUSTOMER (solo un grupo, no dupliques)
 Route::middleware(['auth','verified','role:customer'])
     ->prefix('customer')->name('customer.')
@@ -67,3 +73,63 @@ Route::middleware(['auth','verified','role:customer'])
 if (file_exists(base_path('routes/auth.php'))) {
     require base_path('routes/auth.php');
 }
+=======
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::get('/empleado', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
+
+    Route::post('/empleado/clientes', [EmpleadoController::class, 'store'])->name('empleado.clientes.store');
+    Route::get('/empleado/clientes/{id}/edit', [EmpleadoController::class, 'edit'])->name('empleado.clientes.edit');
+    Route::put('/empleado/clientes/{id}', [EmpleadoController::class, 'update'])->name('empleado.clientes.update');
+    Route::delete('/empleado/clientes/{id}', [EmpleadoController::class, 'destroy'])->name('empleado.clientes.destroy');
+
+    Route::get('/empleado/clientes/{id}/historial', [EmpleadoController::class, 'historial'])->name('empleado.clientes.historial');
+
+    Route::get('/empleado/atrasados', [EmpleadoController::class, 'atrasados'])
+        ->name('empleado.atrasados');
+    
+    Route::put('/empleado/clientes/{id}/update', [EmpleadoController::class, 'update'])
+        ->name('empleado.clientes.update');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    Route::get('/empleado', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
+    Route::get('/empleado/atrasados', [EmpleadoController::class, 'atrasados'])->name('empleado.atrasados');
+
+    // 🔹 Nueva ruta para el módulo de películas
+    Route::get('/empleado/peliculas', [EmpleadoController::class, 'peliculas'])->name('empleado.peliculas');
+
+    Route::put('/empleado/peliculas/{id}/marcar', [EmpleadoController::class, 'marcarPelicula'])->name('empleado.peliculas.marcar');
+    Route::get('/empleado/peliculas/{id}/historial', [EmpleadoController::class, 'historialPelicula'])->name('empleado.peliculas.historial');
+
+});
+
+// Rentas
+Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])->name('empleado.rentas');
+Route::post('/empleado/rentas', [EmpleadoController::class, 'storeRenta'])->name('empleado.rentas.store');
+Route::put('/empleado/rentas/{id}/devolver', [EmpleadoController::class, 'devolver'])->name('empleado.rentas.devolver');
+Route::get('/empleado/rentas/cargos', [EmpleadoController::class, 'calcularCargos'])->name('empleado.rentas.cargos');
+
+
+Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])
+    ->name('empleado.rentas')
+    ->middleware(['auth', 'verified']);
+
+    Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])
+    ->name('empleado.rentas');
+
+Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])->name('empleado.rentas');
+Route::post('/empleado/rentas', [EmpleadoController::class, 'storeRenta'])->name('empleado.rentas.store');
+Route::put('/empleado/rentas/{id}/devolver', [EmpleadoController::class, 'devolver'])->name('empleado.rentas.devolver');
+
+Route::prefix('empleado')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/historial/{inventory_id}', [App\Http\Controllers\InventoryHistoryController::class, 'show'])
+        ->name('empleado.historial');
+
+    Route::post('/historial', [App\Http\Controllers\InventoryHistoryController::class, 'store'])
+        ->name('empleado.historial.store');
+});
+
+
+>>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5

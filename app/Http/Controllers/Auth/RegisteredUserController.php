@@ -11,8 +11,12 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+<<<<<<< HEAD
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Auth\Events\Registered;
+=======
+use App\Models\Role;
+>>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
 
 class RegisteredUserController extends Controller
 {
@@ -28,7 +32,16 @@ class RegisteredUserController extends Controller
         return view('auth.register', compact('stores','cities'));
     }
 
+<<<<<<< HEAD
     public function store(Request $request): RedirectResponse
+=======
+    /**
+     * Handle an incoming registration request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    /*public function store(Request $request): RedirectResponse
+>>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
     {
         $request->validate([
             'name'         => ['required','string','max:255'],
@@ -84,6 +97,36 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
         Auth::login($user);
 
+<<<<<<< HEAD
         return redirect()->route('customer.catalog');
+=======
+        return redirect(route('dashboard', absolute: false));
+    }*/
+
+
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        // Buscar el rol 'cliente'
+        $clienteRole = Role::where('name', 'cliente')->first();
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => $clienteRole ? $clienteRole->id : null,
+        ]);
+
+        event(new Registered($user));
+        Auth::login($user);
+
+        return redirect(route('dashboard', absolute: false));
+>>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
     }
+
 }

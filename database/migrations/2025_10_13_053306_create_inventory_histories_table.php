@@ -10,20 +10,18 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        if (!Schema::hasColumn('users', 'role_id')) {
-            $table->unsignedBigInteger('role_id')->nullable()->after('id');
-        }
-    });
-}
+    {
+        Schema::create('inventory_histories', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
+    }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('inventory_histories');
     }
 };

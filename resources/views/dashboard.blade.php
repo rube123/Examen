@@ -1,4 +1,15 @@
+@php
+    $user = Auth::user();
+@endphp
+
+@if($user && $user->isRole('empleado'))
+    <script>
+        window.location.href = "{{ route('empleado.dashboard') }}";
+    </script>
+@endif
+
 <x-app-layout>
+<<<<<<< HEAD
   <x-slot name="header">
     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
       {{ __('Dashboard') }}
@@ -26,6 +37,44 @@
       if (!isset($categories)) {
           $categories = \DB::table('category')->select('category_id','name')->orderBy('name')->get();
       }
+=======
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+    </x-slot>
+    @if ($errors->has('auth'))
+    <div class="p-3 mb-4 bg-red-100 text-red-700 rounded">
+        {{ $errors->first('auth') }}
+    </div>
+@endif
+
+
+    @php
+        $user = Auth::user();
+        $role = optional($user->role)->name; // obtén el nombre del rol desde la relación
+
+        // Si el nombre del rol en la BD está en español, ajusta aquí
+        $labels = [
+            'admin' => 'Administrador',
+            'empleado' => 'Empleado',
+            'cliente' => 'Cliente',
+            'publico' => 'Público general',
+        ];
+
+        $label = $labels[$role] ?? ucfirst($role ?? 'Sin rol');
+    @endphp
+
+
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <h1 class="text-2xl font-bold mb-2">
+                        Bienvenido, {{ $label }}
+                    </h1>
+>>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
 
       // Evitar error si no existe la tabla notifications
       $hasNotificationsTable = \Schema::hasTable('notifications');
@@ -180,5 +229,9 @@
         </div>
       </div>
     </div>
+<<<<<<< HEAD
   </div>
 </x-app-layout>
+=======
+</x-app-layout>
+>>>>>>> 6240fd4c090c320552a32d9a68f99d8f9dc67fd5
