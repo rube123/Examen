@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
->>>>>>> b9e1e6c (Comentarios)
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;   // <- IMPORTANTE
 use App\Http\Controllers\Customer\CatalogController;       // <- IMPORTANTE
