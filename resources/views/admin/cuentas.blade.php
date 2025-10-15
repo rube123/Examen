@@ -27,30 +27,62 @@
                         <td class="p-3">{{ $e->first_name }} {{ $e->last_name }}</td>
                         <td class="p-3">{{ $e->email }}</td>
                         <td class="p-3">
-                            @if ($e->active)
-                                <span class="px-2 py-1 bg-green-200 text-green-800 rounded">Activo</span>
-                            @else
-                                <span class="px-2 py-1 bg-red-200 text-red-800 rounded">Bloqueado</span>
-                            @endif
+                            <!-- Switch para activar/desactivar -->
+                            <form action="{{ route('admin.cuentas.toggle', $e->staff_id) }}" method="POST"
+                                id="toggleForm{{ $e->staff_id }}">
+                                @csrf
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox"
+                                        onchange="document.getElementById('toggleForm{{ $e->staff_id }}').submit()"
+                                        class="sr-only peer" {{ $e->active ? 'checked' : '' }}>
+                                    <div
+                                        class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full">
+                                    </div>
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        {{ $e->active ? 'Activo' : 'Bloqueado' }}
+                                    </span>
+                                </label>
+                            </form>
                         </td>
                         <td class="p-3 text-center">
-                            <form action="{{ route('admin.cuentas.reset', $e->staff_id) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded">
-                                    Resetear
-                                </button>
-                            </form>
-
-                            <form action="{{ route('admin.cuentas.toggle', $e->staff_id) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                                    {{ $e->active ? 'Bloquear' : 'Desbloquear' }}
-                                </button>
-                            </form>
+                            <!-- Botón de reseteo con SweetAlert -->
+                            <button onclick="confirmReset({{ $e->staff_id }}, '{{ $e->first_name }} {{ $e->last_name }}')"
+                                class="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded">
+                                Resetear
+                            </button>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
+
+            <script>
+                function confirmReset(id, nombre) {
+                    Swal.fire({
+                        title: '¿Resetear contraseña?',
+                        text: `Esto asignará "empleado123" a la cuenta de ${nombre}`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sí, resetear',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = `/admin/cuentas/${id}/reset`;
+                            const token = document.createElement('input');
+                            token.type = 'hidden';
+                            token.name = '_token';
+                            token.value = '{{ csrf_token() }}';
+                            form.appendChild(token);
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
+                    });
+                }
+            </script>
+
         </table>
     </div>
 </x-app-layout>
