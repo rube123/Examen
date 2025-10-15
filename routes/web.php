@@ -3,12 +3,14 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Auth\RegisteredUserController;   // <- IMPORTANTE
-use App\Http\Controllers\Customer\CatalogController;       // <- IMPORTANTE
-use App\Http\Controllers\Customer\AccountController;       // <- IMPORTANTE
+use App\Http\Controllers\Auth\RegisteredUserController;   
+use App\Http\Controllers\Customer\CatalogController;       
+use App\Http\Controllers\Customer\AccountController;       
 
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\PeliculaController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminEmpleadoController;
 
 
 Route::get('/', function () {
@@ -130,5 +132,21 @@ Route::prefix('empleado')->middleware(['auth', 'verified'])->group(function () {
         ->name('empleado.historial.store');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/empleados', [AdminController::class, 'empleados'])->name('admin.empleados');
+    Route::get('/admin/peliculas', [AdminController::class, 'catalogo'])->name('admin.peliculas');
+    Route::get('/admin/reportes', [AdminController::class, 'reportes'])->name('admin.reportes');
+});
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/empleados', [AdminEmpleadoController::class, 'index'])->name('empleados');
+    Route::get('/empleados/crear', [AdminEmpleadoController::class, 'create'])->name('empleados.create');
+    Route::post('/empleados', [AdminEmpleadoController::class, 'store'])->name('empleados.store');
+    Route::get('/empleados/{id}/editar', [AdminEmpleadoController::class, 'edit'])->name('empleados.edit');
+    Route::put('/empleados/{id}', [AdminEmpleadoController::class, 'update'])->name('empleados.update');
+    Route::delete('/empleados/{id}', [AdminEmpleadoController::class, 'destroy'])->name('empleados.destroy');
+});
 
 

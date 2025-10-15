@@ -35,6 +35,25 @@
                             {{ __('Películas') }}
                         </x-nav-link>
                     @endif
+                    {{-- Enlace visible solo para administradores --}}
+                    @if($user && (int) $user->role_id === 2)
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.empleados')" :active="request()->routeIs('admin.empleados')">
+                            {{ __('Empleados') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.peliculas')" :active="request()->routeIs('admin.peliculas')">
+                            {{ __('Catálogo') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.reportes')" :active="request()->routeIs('admin.reportes')">
+                            {{ __('Reportes') }}
+                        </x-nav-link>
+
+                    @endif
 
                 </div>
             </div>
@@ -107,8 +126,8 @@
                 </x-responsive-nav-link>
 
                 <x-nav-link :href="route('empleado.rentas')" :active="request()->routeIs('empleado.rentas')">
-    {{ __('Rentas') }}
-</x-nav-link>
+                    {{ __('Rentas') }}
+                </x-nav-link>
 
                 <x-nav-link :href="route('empleado.peliculas')" :active="request()->routeIs('empleado.peliculas')">
                     {{ __('Películas') }}
