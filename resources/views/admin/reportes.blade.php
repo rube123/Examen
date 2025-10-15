@@ -40,28 +40,28 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-white p-4 rounded shadow flex flex-col items-center">
                 <h3 class="font-semibold mb-3 text-center">🎬 Películas más rentadas</h3>
-                <div style="max-width: 400px; height: 300px;">
+                <div style="max-width: 600px; height: 400px;">
                     <canvas id="chartPeliculas"></canvas>
                 </div>
             </div>
 
             <div class="bg-white p-4 rounded shadow flex flex-col items-center">
                 <h3 class="font-semibold mb-3 text-center">💰 Ingresos por tienda</h3>
-                <div style="max-width: 400px; height: 300px;">
+                <div style="max-width: 600px; height: 400px;">
                     <canvas id="chartTiendas"></canvas>
                 </div>
             </div>
 
             <div class="bg-white p-4 rounded shadow flex flex-col items-center">
                 <h3 class="font-semibold mb-3 text-center">👥 Clientes con más rentas</h3>
-                <div style="max-width: 400px; height: 300px;">
+                <div style="max-width: 600px; height: 400px;">
                     <canvas id="chartClientes"></canvas>
                 </div>
             </div>
 
             <div class="bg-white p-4 rounded shadow flex flex-col items-center">
                 <h3 class="font-semibold mb-3 text-center">📁 Rentas por categoría</h3>
-                <div style="max-width: 400px; height: 300px;">
+                <div style="max-width: 600px; height: 400px;">
                     <canvas id="chartCategorias"></canvas>
                 </div>
             </div>
