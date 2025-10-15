@@ -2,41 +2,65 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Controladores comunes / auth.
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Auth\RegisteredUserController;   // <- IMPORTANTE
-use App\Http\Controllers\Customer\CatalogController;       // <- IMPORTANTE
-use App\Http\Controllers\Customer\AccountController;       // <- IMPORTANTE
-
+use App\Http\Controllers\Auth\RegisteredUserController;   // <- Formulario/acción de registro (si usas Breeze/tu propio Auth).
+// CUSTOMER (lado cliente).
+use App\Http\Controllers\Customer\CatalogController;       // <- Catálogo para clientes.
+use App\Http\Controllers\Customer\AccountController;       // <- Cuenta/historial/cargos del cliente.
+// ADMIN (panel de administración).
+use App\Http\Controllers\Admin\AdminDashboardController;   // <- Dashboard Admin.
+use App\Http\Controllers\Admin\StoreController;            // <- CRUD Tiendas.
+use App\Http\Controllers\Admin\EmployeeController;         // <- CRUD Empleados.
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController; // <- CRUD Clientes (admin).
+use App\Http\Controllers\Admin\Catalog1Controller;         // <- CRUD Catálogo .
+use App\Http\Controllers\Admin\InventoryController;        // <- CRUD Inventario.
+use App\Http\Controllers\Admin\ReportController;           // <- Reportes.
+// EMPLEADO (módulo de empleados / sucursales).
 use App\Http\Controllers\EmpleadoController;
-use App\Http\Controllers\PeliculaController;
+// Historial de inventario (rutas bajo /empleado).
+use App\Http\Controllers\InventoryHistoryController;    
 
+// -----------------------------------------------------------------------------
+// Home / Dashboard básico
+// -----------------------------------------------------------------------------
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome'); // <- Página de bienvenida.
 });
 
-// Dashboard
+// Dashboard general (logueado + email verificado).
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    return view('dashboard'); // <- Vista de tu dashboard base.
+})->middleware(['auth', 'verified'])->name('dashboard'); // <- Middleware según docs (verificación de email). 
+// https://laravel.com/docs/12.x/verification :contentReference[oaicite:1]{index=1}
 
-// Perfil
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// -----------------------------------------------------------------------------
+// Perfil del usuario (sección privada)
+// -----------------------------------------------------------------------------
+
+Route::middleware('auth')->group(function () { // <- Requiere estar autenticado.
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');     // Editar perfil.
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update'); // Actualizar perfil.
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy'); // Borrar perfil.
 });
 
-// Auth routes (invitan al guest)
-Route::middleware('guest')->group(function () {
-    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('/register', [RegisteredUserController::class, 'store']);
+// -----------------------------------------------------------------------------
+// Registro (solo invitados/guests)
+// -----------------------------------------------------------------------------
+
+Route::middleware('guest')->group(function () { // <- Solo usuarios no autenticados.
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register'); // Form de registro.
+    Route::post('/register', [RegisteredUserController::class, 'store']);                   // Acción de registro.
 });
 
-// Utilidad
+// -----------------------------------------------------------------------------
+// Utilidad: ¿Quién soy? (debug rápido del rol)
+// -----------------------------------------------------------------------------
+
 Route::middleware(['auth'])->get('/whoami', function () {
     $user = auth()->user();
-    $role = optional($user->role)->name;
+    $role = optional($user->role)->name; // <- role_id -> roles.name (esquema propio).
 
     $map = [
         'admin'    => 'Administrador general',
@@ -48,87 +72,108 @@ Route::middleware(['auth'])->get('/whoami', function () {
     $label = $map[$role] ?? 'Rol no asignado';
 
     return response()->json([
-        'user' => $user->only(['id','name','email']),
-        'role' => $role,
+        'user'    => $user->only(['id','name','email']),
+        'role'    => $role,
         'mensaje' => "Has iniciado sesión como: {$label}",
     ]);
 })->name('whoami');
 
-// Rutas CUSTOMER (solo un grupo, no dupliques)
-Route::middleware(['auth','verified','role:customer'])
-    ->prefix('customer')->name('customer.')
+// -----------------------------------------------------------------------------
+// CUSTOMER (cliente final)
+// -----------------------------------------------------------------------------
+
+Route::middleware(['auth','verified'])     // <- Añade aquí 'customer' si creas tu middleware propio.
+    ->prefix('customer')                   // <- URL: /customer/...
+    ->name('customer.')                    // <- Nombres: customer.*
     ->group(function () {
 
-        // Catálogo
-        Route::get('catalog', [CatalogController::class, 'index'])->name('catalog');
+        // Catálogo del cliente.
+        Route::get('catalog', [CatalogController::class, 'index'])->name('catalog');      // GET /customer/catalog
         Route::get('films/{filmId}', [CatalogController::class, 'show'])->name('films.show');
 
-        // Cuenta
+        // Cuenta del cliente.
         Route::get('rentals', [AccountController::class, 'rentalsHistory'])->name('rentals');
         Route::get('payments', [AccountController::class, 'payments'])->name('payments');
         Route::get('charges/pending', [AccountController::class, 'pendingCharges'])->name('charges');
     });
-// Cargar rutas de autenticación si existen
-if (file_exists(base_path('routes/auth.php'))) {
-    require base_path('routes/auth.php');
+
+// -----------------------------------------------------------------------------
+// ADMIN (panel de administración)
+// -----------------------------------------------------------------------------
+
+Route::middleware(['auth','admin'])        // <- Requiere tu middleware 'admin' (EnsureAdmin).
+    ->prefix('admin')                      // <- URL: /admin/...
+    ->name('admin.')                       // <- Nombres: admin.*
+    ->group(function () {
+
+        // Dashboard del administrador.
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        // CRUDs principales (usa resource controllers para ahorrar rutas).
+        // https://laravel.com/docs/12.x/controllers#resource-controllers
+        Route::resources([
+            'stores'    => StoreController::class,              // admin/stores/*
+            'employees' => EmployeeController::class,           // admin/employees/*
+            'customers' => AdminCustomerController::class,      // admin/customers/*
+            'catalog'   => Catalog1Controller::class,           // admin/catalog/*
+            'inventory' => InventoryController::class,          // admin/inventory/*
+        ]);
+
+        // Reportes (ejemplos de índices/exports).
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('reports/export/csv', [ReportController::class, 'exportCsv'])->name('reports.csv');
+        Route::get('reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
+    });
+
+// -----------------------------------------------------------------------------
+// EMPLEADO (módulo de empleados / sucursal)
+// -----------------------------------------------------------------------------
+
+Route::prefix('empleado')                  // <- URL: /empleado/...
+    ->middleware(['auth','verified'])      // <- Añade 'employee' si creas middleware propio.
+    ->name('empleado.')                    // <- Nombres: empleado.*
+    ->group(function () {
+
+        // Dashboard del empleado.
+        Route::get('/', [EmpleadoController::class, 'dashboard'])->name('dashboard');
+
+        // Gestión de clientes (empleado).
+        Route::post('/clientes', [EmpleadoController::class, 'store'])->name('clientes.store');
+        Route::get('/clientes/{id}/edit', [EmpleadoController::class, 'edit'])->name('clientes.edit');
+        Route::put('/clientes/{id}', [EmpleadoController::class, 'update'])->name('clientes.update');
+        Route::delete('/clientes/{id}', [EmpleadoController::class, 'destroy'])->name('clientes.destroy');
+        Route::get('/clientes/{id}/historial', [EmpleadoController::class, 'historial'])->name('clientes.historial');
+
+        // Listas de atrasos / moras.
+        Route::get('/atrasados', [EmpleadoController::class, 'atrasados'])->name('atrasados');
+
+        // Módulo de películas para empleado.
+        Route::get('/peliculas', [EmpleadoController::class, 'peliculas'])->name('peliculas');                   // Listado.
+        Route::put('/peliculas/{id}/marcar', [EmpleadoController::class, 'marcarPelicula'])->name('peliculas.marcar'); // Marcar.
+        Route::get('/peliculas/{id}/historial', [EmpleadoController::class, 'historialPelicula'])->name('peliculas.historial');
+
+        // Rentas (empleado).
+        Route::get('/rentas', [EmpleadoController::class, 'rentas'])->name('rentas');                    // Mostrar rentas.
+        Route::post('/rentas', [EmpleadoController::class, 'storeRenta'])->name('rentas.store');         // Crear renta.
+        Route::put('/rentas/{id}/devolver', [EmpleadoController::class, 'devolver'])->name('rentas.devolver'); // Devolver renta.
+        Route::get('/rentas/cargos', [EmpleadoController::class, 'calcularCargos'])->name('rentas.cargos');    // Calcular cargos.
+
+        // Historial de inventario (empleado).
+        Route::get('/historial/{inventory_id}', [InventoryHistoryController::class, 'show'])->name('historial');       // Ver historial de un item.
+        Route::post('/historial', [InventoryHistoryController::class, 'store'])->name('historial.store');              // Registrar evento en historial.
+    });
+
+// -----------------------------------------------------------------------------
+// Carga de rutas de autenticación generadas por scaffolding (Breeze/Jetstream/etc.)
+// -----------------------------------------------------------------------------
+
+if (file_exists(base_path('routes/auth.php'))) { // <- Solo si existe el archivo.
+    require base_path('routes/auth.php');        // <- Trae login/logout/forgot/verify, etc., según tu scaffolding.
 }
 
-Route::middleware(['auth', 'verified'])->group(function () {
-
-    Route::get('/empleado', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
-
-    Route::post('/empleado/clientes', [EmpleadoController::class, 'store'])->name('empleado.clientes.store');
-    Route::get('/empleado/clientes/{id}/edit', [EmpleadoController::class, 'edit'])->name('empleado.clientes.edit');
-    Route::put('/empleado/clientes/{id}', [EmpleadoController::class, 'update'])->name('empleado.clientes.update');
-    Route::delete('/empleado/clientes/{id}', [EmpleadoController::class, 'destroy'])->name('empleado.clientes.destroy');
-
-    Route::get('/empleado/clientes/{id}/historial', [EmpleadoController::class, 'historial'])->name('empleado.clientes.historial');
-
-    Route::get('/empleado/atrasados', [EmpleadoController::class, 'atrasados'])
-        ->name('empleado.atrasados');
-    
-    Route::put('/empleado/clientes/{id}/update', [EmpleadoController::class, 'update'])
-        ->name('empleado.clientes.update');
-});
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    
-    Route::get('/empleado', [EmpleadoController::class, 'dashboard'])->name('empleado.dashboard');
-    Route::get('/empleado/atrasados', [EmpleadoController::class, 'atrasados'])->name('empleado.atrasados');
-
-    // 🔹 Nueva ruta para el módulo de películas
-    Route::get('/empleado/peliculas', [EmpleadoController::class, 'peliculas'])->name('empleado.peliculas');
-
-    Route::put('/empleado/peliculas/{id}/marcar', [EmpleadoController::class, 'marcarPelicula'])->name('empleado.peliculas.marcar');
-    Route::get('/empleado/peliculas/{id}/historial', [EmpleadoController::class, 'historialPelicula'])->name('empleado.peliculas.historial');
-
-});
-
-// Rentas
-Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])->name('empleado.rentas');
-Route::post('/empleado/rentas', [EmpleadoController::class, 'storeRenta'])->name('empleado.rentas.store');
-Route::put('/empleado/rentas/{id}/devolver', [EmpleadoController::class, 'devolver'])->name('empleado.rentas.devolver');
-Route::get('/empleado/rentas/cargos', [EmpleadoController::class, 'calcularCargos'])->name('empleado.rentas.cargos');
-
-
-Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])
-    ->name('empleado.rentas')
-    ->middleware(['auth', 'verified']);
-
-    Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])
-    ->name('empleado.rentas');
-
-Route::get('/empleado/rentas', [EmpleadoController::class, 'rentas'])->name('empleado.rentas');
-Route::post('/empleado/rentas', [EmpleadoController::class, 'storeRenta'])->name('empleado.rentas.store');
-Route::put('/empleado/rentas/{id}/devolver', [EmpleadoController::class, 'devolver'])->name('empleado.rentas.devolver');
-
-Route::prefix('empleado')->middleware(['auth', 'verified'])->group(function () {
-    Route::get('/historial/{inventory_id}', [App\Http\Controllers\InventoryHistoryController::class, 'show'])
-        ->name('empleado.historial');
-
-    Route::post('/historial', [App\Http\Controllers\InventoryHistoryController::class, 'store'])
-        ->name('empleado.historial.store');
-});
-
-
-
+// -----------------------------------------------------------------------------
+// Tip: lista todas tus rutas en consola con:
+// php artisan route:list
+// https://laravel.com/docs/12.x/controllers#resource-controllers
+// https://laravel.com/docs/12.x/routing#route-groups
+// -----------------------------------------------------------------------------
