@@ -52,7 +52,9 @@
                         <x-nav-link :href="route('admin.reportes')" :active="request()->routeIs('admin.reportes')">
                             {{ __('Reportes') }}
                         </x-nav-link>
-
+                        <x-nav-link :href="route('admin.tiendas')" :active="request()->routeIs('admin.tiendas')">
+                            {{ __('Tiendas') }}
+                        </x-nav-link>
                     @endif
 
                 </div>

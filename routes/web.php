@@ -6,11 +6,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;   
 use App\Http\Controllers\Customer\CatalogController;       
 use App\Http\Controllers\Customer\AccountController;       
-
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\PeliculaController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminEmpleadoController;
+use App\Http\Controllers\AdminStoreController;
 
 
 Route::get('/', function () {
@@ -149,4 +149,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/empleados/{id}', [AdminEmpleadoController::class, 'destroy'])->name('empleados.destroy');
 });
 
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/tiendas', [AdminStoreController::class, 'index'])->name('admin.tiendas');
+    Route::get('/tiendas/crear', [AdminStoreController::class, 'create'])->name('admin.tiendas.create');
+    Route::post('/tiendas', [AdminStoreController::class, 'store'])->name('admin.tiendas.store');
+    Route::get('/tiendas/{id}/editar', [AdminStoreController::class, 'edit'])->name('admin.tiendas.edit');
+    Route::put('/tiendas/{id}', [AdminStoreController::class, 'update'])->name('admin.tiendas.update');
+    Route::delete('/tiendas/{id}', [AdminStoreController::class, 'destroy'])->name('admin.tiendas.destroy');
+});
+
+Route::get('/admin/tiendas', [AdminStoreController::class, 'index'])->name('admin.tiendas');
 
