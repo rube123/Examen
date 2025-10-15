@@ -11,6 +11,7 @@ use App\Http\Controllers\PeliculaController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminEmpleadoController;
 use App\Http\Controllers\AdminStoreController;
+use App\Http\Controllers\AdminCuentaController;
 
 
 Route::get('/', function () {
@@ -159,4 +160,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 });
 
 Route::get('/admin/tiendas', [AdminStoreController::class, 'index'])->name('admin.tiendas');
+
+Route::get('/admin/cuentas', [AdminCuentaController::class, 'index'])->name('admin.cuentas');
+Route::post('/admin/cuentas/{id}/reset', [AdminCuentaController::class, 'resetPassword'])->name('admin.cuentas.reset');
+Route::post('/admin/cuentas/{id}/toggle', [AdminCuentaController::class, 'toggleActive'])->name('admin.cuentas.toggle');
+
 

@@ -55,6 +55,10 @@
                         <x-nav-link :href="route('admin.tiendas')" :active="request()->routeIs('admin.tiendas')">
                             {{ __('Tiendas') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.cuentas')" :active="request()->routeIs('admin.cuentas')">
+                            {{ __('Cuentas') }}
+                        </x-nav-link>
+
                     @endif
 
                 </div>
