@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminEmpleadoController;
 use App\Http\Controllers\AdminStoreController;
 use App\Http\Controllers\AdminCuentaController;
+use App\Http\Controllers\AdminReportController;
 
 
 Route::get('/', function () {
@@ -165,4 +166,11 @@ Route::get('/admin/cuentas', [AdminCuentaController::class, 'index'])->name('adm
 Route::post('/admin/cuentas/{id}/reset', [AdminCuentaController::class, 'resetPassword'])->name('admin.cuentas.reset');
 Route::post('/admin/cuentas/{id}/toggle', [AdminCuentaController::class, 'toggleActive'])->name('admin.cuentas.toggle');
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/reportes', [AdminReportController::class, 'index'])->name('admin.reportes');
+});
+
+Route::get('/admin/reportes', [AdminReportController::class, 'index'])->name('admin.reportes');
+Route::get('/admin/reportes/export/csv', [AdminReportController::class, 'exportCsv'])->name('admin.reportes.csv');
+Route::get('/admin/reportes/export/pdf', [AdminReportController::class, 'exportPdf'])->name('admin.reportes.pdf');
 
