@@ -4,30 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Customer extends Model
 {
-    protected $table = 'customer';
+    protected $connection = 'sakila';
+    protected $table      = 'customer';
     protected $primaryKey = 'customer_id';
-    public $timestamps = false;
+    public    $timestamps = false;
 
     protected $fillable = [
-        'store_id',
-        'first_name',
-        'last_name',
-        'email',
-        'address_id',
-        'active',
-        'create_date',
-        'last_update',
-        'curp', // si la agregas como campo nuevo
-        'phone',
+        'store_id','first_name','last_name','email','address_id','active',
     ];
 
-    // Un cliente tiene muchas rentas
     public function rentals(): HasMany
     {
         return $this->hasMany(Rental::class, 'customer_id', 'customer_id');
     }
-}
 
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class, 'store_id', 'store_id');
+    }
+}

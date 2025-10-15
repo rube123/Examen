@@ -163,6 +163,47 @@ Route::prefix('empleado')                  // <- URL: /empleado/...
         Route::post('/historial', [InventoryHistoryController::class, 'store'])->name('historial.store');              // Registrar evento en historial.
     });
 
+
+    // ----- ADMIN: CRUD y utilidades -----
+    Route::middleware(['auth','verified','admin'])
+        ->prefix('admin')->name('admin.')
+        ->group(function () {
+
+        // Dashboard de administrador (/admin)
+        Route::get('/', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        // Gestión global
+        Route::resource('stores',    \App\Http\Controllers\Admin\StoreController::class)->except(['show']);
+        Route::resource('employees', \App\Http\Controllers\Admin\EmployeeController::class)->except(['show']);
+        Route::resource('customers', \App\Http\Controllers\Admin\CustomerController::class)->except(['show']);
+
+        // Usuarios de la app (reset password / bloquear)
+        Route::get ('users',              [\App\Http\Controllers\Admin\UserAdminController::class, 'index'])->name('users.index');
+        Route::post('users/{id}/reset',   [\App\Http\Controllers\Admin\UserAdminController::class, 'resetPassword'])->name('users.reset');
+        Route::post('users/{id}/block',   [\App\Http\Controllers\Admin\UserAdminController::class, 'block'])->name('users.block');
+        Route::post('users/{id}/unblock', [\App\Http\Controllers\Admin\UserAdminController::class, 'unblock'])->name('users.unblock');
+
+        // Catálogo
+        Route::resource('films',      \App\Http\Controllers\Admin\FilmController::class);
+        Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class)->except(['show']);
+        Route::resource('languages',  \App\Http\Controllers\Admin\LanguageController::class)->except(['show']);
+
+        // Inventario (copias por tienda)
+        Route::resource('inventory', \App\Http\Controllers\Admin\InventoryController::class)
+            ->only(['index','create','store','destroy']);
+
+        // Importación OMDb (API externa)
+        Route::post('films/import/omdb', [\App\Http\Controllers\Admin\FilmController::class, 'importOmdb'])
+            ->name('films.import.omdb');
+
+        // Reportes
+        Route::get('reports',      [\App\Http\Controllers\Admin\ReportController::class,'index'])->name('reports.index');  // vista
+        Route::get('reports/csv',  [\App\Http\Controllers\Admin\ReportController::class,'exportCsv'])->name('reports.csv'); // CSV
+        Route::get('reports/pdf',  [\App\Http\Controllers\Admin\ReportController::class,'exportPdf'])->name('reports.pdf'); // PDF
+    });
+
+
 // -----------------------------------------------------------------------------
 // Carga de rutas de autenticación generadas por scaffolding (Breeze/Jetstream/etc.)
 // -----------------------------------------------------------------------------
@@ -174,6 +215,4 @@ if (file_exists(base_path('routes/auth.php'))) { // <- Solo si existe el archivo
 // -----------------------------------------------------------------------------
 // Tip: lista todas tus rutas en consola con:
 // php artisan route:list
-// https://laravel.com/docs/12.x/controllers#resource-controllers
-// https://laravel.com/docs/12.x/routing#route-groups
 // -----------------------------------------------------------------------------
