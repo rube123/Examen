@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Notifications\ResetPasswordBlockbuster;
 
 class User extends Authenticatable
 {
@@ -71,5 +72,13 @@ class User extends Authenticatable
         'customer_id'
     )->withPivot([]);
 }
+public function sendPasswordResetNotification($token): void
+    {
+        $url = url(route('password.reset', [
+            'token' => $token,
+            'email' => $this->getEmailForPasswordReset(),
+        ], false));
 
+        $this->notify(new ResetPasswordBlockbuster($url));
+    }
 }

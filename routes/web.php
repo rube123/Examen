@@ -174,3 +174,11 @@ Route::get('/admin/reportes', [AdminReportController::class, 'index'])->name('ad
 Route::get('/admin/reportes/export/csv', [AdminReportController::class, 'exportCsv'])->name('admin.reportes.csv');
 Route::get('/admin/reportes/export/pdf', [AdminReportController::class, 'exportPdf'])->name('admin.reportes.pdf');
 
+use Illuminate\Support\Facades\Mail;
+
+Route::get('/mail-debug', function () {
+    Mail::raw('Correo de prueba simple', function($m) {
+        $m->to('prueba@ejemplo.com')->subject('Test SMTP');
+    });
+    return 'OK';
+});
