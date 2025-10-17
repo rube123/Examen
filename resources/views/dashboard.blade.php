@@ -1,155 +1,174 @@
 @php
-    $user = Auth::user();
-@endphp
+    $user  = auth()->user();
+    $role  = optional($user->role)->name;
+    $labels = [
+        'admin'    => 'Administrador',
+        'employee' => 'Empleado de sucursal',
+        'customer' => 'Cliente',
+        'public'   => 'Público general',
+    ];
+    $label = $labels[$role] ?? 'Sin rol';
 
-@if($user && $user->isRole('empleado'))
-    <script>
-        window.location.href = "{{ route('empleado.dashboard') }}";
-    </script>
-@endif
+    if (!isset($stores)) {
+        $stores = \DB::table('store')->select('store_id')->orderBy('store_id')->get();
+    }
+    if (!isset($languages)) {
+        $languages = \DB::table('language')->select('language_id','name')->orderBy('name')->get();
+    }
+    if (!isset($categories)) {
+        $categories = \DB::table('category')->select('category_id','name')->orderBy('name')->get();
+    }
+
+    $hasNotificationsTable = \Schema::hasTable('notifications');
+@endphp
 
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
+        <h2 class="font-extrabold text-3xl text-yellow-400 tracking-wide">
+            🎬 Blockbuster Dashboard
         </h2>
+        <p class="text-blue-300 text-sm">Bienvenido al panel principal</p>
     </x-slot>
 
-    @php
-        $user  = auth()->user();
-        $role  = optional($user->role)->name;
-        $labels = [
-            'admin'    => 'Administrador',
-            'employee' => 'Empleado de sucursal',
-            'customer' => 'Cliente',
-            'public'   => 'Público general',
-        ];
-        $label = $labels[$role] ?? 'Sin rol';
-
-        // Fallbacks por si no vienes desde un controlador que pase estos datos:
-        if (!isset($stores)) {
-            $stores = \DB::table('store')->select('store_id')->orderBy('store_id')->get();
+    <style>
+        body { background: #0b0f17 !important; }
+        .blockbuster-bg {
+            background: linear-gradient(180deg, #0b0f17 0%, #101622 100%);
+            min-height: 100vh;
+            color: white;
+            position: relative;
         }
-        if (!isset($languages)) {
-            $languages = \DB::table('language')->select('language_id','name')->orderBy('name')->get();
+        .blockbuster-card {
+            background: linear-gradient(135deg, #141c2e, #1d2640);
+            border: 2px solid #facc15;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.3s;
         }
-        if (!isset($categories)) {
-            $categories = \DB::table('category')->select('category_id','name')->orderBy('name')->get();
+        .blockbuster-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
+        }
+        .blockbuster-btn {
+            background: #2563eb;
+            color: #fff;
+            padding: 0.8rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .blockbuster-btn:hover {
+            background: #1d4ed8;
+        }
+        .pill {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
         }
 
-        // Evitar error si no existe la tabla notifications
-        $hasNotificationsTable = \Schema::hasTable('notifications');
-    @endphp
+        /* 👇 Solución para selects */
+        select, select option {
+            background-color: #0b0f17 !important;
+            color: #ffffff !important;
+        }
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.7);
+        }
+    </style>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h1 class="text-2xl font-bold mb-1">Bienvenido, {{ $label }}</h1>
-                    <p class="mb-6">Estás autenticado como <strong>{{ $user->name }}</strong> ({{ $user->email }}).</p>
+    <div class="blockbuster-bg py-10 px-6">
+        <div class="max-w-7xl mx-auto">
 
-                    {{-- ALERTAS (solo si existe la tabla y hay notificaciones) --}}
-                    @if($role === 'customer' && $hasNotificationsTable && method_exists($user, 'unreadNotifications') && $user->unreadNotifications->count())
-                        <div class="mb-6 rounded border border-amber-300 bg-amber-50 p-4">
-                            <h3 class="font-semibold mb-2 text-amber-800">Alertas</h3>
-                            <ul class="list-disc pl-5 text-sm text-amber-900">
-                                @foreach($user->unreadNotifications as $n)
-                                    <li class="mb-1">
-                                        {{ $n->data['message'] ?? 'Tienes una notificación de tu renta.' }}
-                                        <span class="text-xs text-amber-700">· {{ $n->created_at->diffForHumans() }}</span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+            <h1 class="text-4xl font-extrabold text-yellow-400 mb-2">🎥 Bienvenido, {{ $user->name }}</h1>
+            <p class="text-blue-300 mb-10">Rol: <span class="font-bold text-yellow-300">{{ $label }}</span></p>
 
-                    {{-- Accesos rápidos por rol --}}
-                    @switch($role)
-                        @case('customer')
-                            <h3 class="text-lg font-semibold mb-3">Accesos rápidos</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                                <a href="{{ route('customer.catalog') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-blue-600 text-blue-700 bg-white hover:bg-blue-50 transition focus:outline-none focus:ring-2 focus:ring-blue-600/40">Catálogo</a>
-                                <a href="{{ route('customer.rentals') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-slate-700 text-slate-800 bg-white hover:bg-slate-50 transition focus:outline-none focus:ring-2 focus:ring-slate-600/30">Mis rentas</a>
-                                <a href="{{ route('customer.payments') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-slate-700 text-slate-800 bg-white hover:bg-slate-50 transition focus:outline-none focus:ring-2 focus:ring-slate-600/30">Pagos</a>
-                                <a href="{{ route('customer.charges') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-amber-600 text-amber-700 bg-white hover:bg-amber-50 transition focus:outline-none focus:ring-2 focus:ring-amber-600/30">Cargos</a>
-                            </div>
-
-                            {{-- BUSCADOR RÁPIDO --}}
-                            <form method="GET" action="{{ route('customer.catalog') }}" class="grid md:grid-cols-6 gap-3 bg-gray-50 p-4 rounded border">
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium mb-1">Título</label>
-                                    <input type="text" name="title" value="{{ request('title') }}" class="w-full border rounded px-3 py-2" placeholder="Buscar por título...">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Tienda</label>
-                                    <select name="store_id" class="w-full border rounded px-3 py-2">
-                                        <option value="">Todas</option>
-                                        @foreach($stores as $s)
-                                            <option value="{{ $s->store_id }}" @selected(request('store_id') == $s->store_id)>{{ $s->store_id }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Categoría</label>
-                                    <select name="category_id" class="w-full border rounded px-3 py-2">
-                                        <option value="">Todas</option>
-                                        @foreach($categories as $c)
-                                            <option value="{{ $c->category_id }}" @selected(request('category_id') == $c->category_id)>{{ $c->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Idioma</label>
-                                    <select name="language_id" class="w-full border rounded px-3 py-2">
-                                        <option value="">Todos</option>
-                                        @foreach($languages as $l)
-                                            <option value="{{ $l->language_id }}" @selected(request('language_id') == $l->language_id)>{{ $l->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="flex items-end">
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="available_only" value="1" class="mr-2" @checked(request()->boolean('available_only'))>
-                                        Solo disponibles ahora
-                                    </label>
-                                </div>
-
-                                <div class="md:col-span-6 text-right">
-                                    <button class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/40 shadow-sm">
-                                        Buscar
-                                    </button>
-                                </div>
-                            </form>
-                        @break
-
-                        @case('employee')
-                            <h3 class="text-lg font-semibold mb-3">Accesos rápidos</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                                <a href="{{ url('/employee/customers') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-blue-600 text-blue-700 bg-white hover:bg-blue-50">Clientes</a>
-                                <a href="{{ url('/employee/inventory') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-slate-700 text-slate-800 bg-white hover:bg-slate-50">Inventario</a>
-                                <a href="{{ url('/employee/rentals') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-slate-700 text-slate-800 bg-white hover:bg-slate-50">Rentas</a>
-                                <a href="{{ url('/employee/returns') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-amber-600 text-amber-700 bg-white hover:bg-amber-50">Devoluciones</a>
-                            </div>
-                        @break
-
-                        @case('admin')
-                            <h3 class="text-lg font-semibold mb-3">Accesos rápidos</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                                <a href="{{ url('/admin/stores') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-blue-600 text-blue-700 bg-white hover:bg-blue-50">Tiendas</a>
-                                <a href="{{ url('/admin/employees') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-slate-700 text-slate-800 bg-white hover:bg-slate-50">Empleados</a>
-                                <a href="{{ url('/admin/catalog') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-slate-700 text-slate-800 bg-white hover:bg-slate-50">Catálogo</a>
-                                <a href="{{ url('/admin/reports') }}" class="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-amber-600 text-amber-700 bg-white hover:bg-amber-50">Reportes</a>
-                            </div>
-                        @break
-
-                        @default
-                            <p class="text-gray-600">Tu usuario no tiene un rol asignado. Contacta al administrador.</p>
-                    @endswitch
+            {{-- ALERTAS --}}
+            @if($role === 'customer' && $hasNotificationsTable && method_exists($user, 'unreadNotifications') && $user->unreadNotifications->count())
+                <div class="blockbuster-card mb-10">
+                    <h2 class="text-2xl font-semibold text-yellow-400 mb-3">⚠️ Alertas importantes</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        @foreach($user->unreadNotifications as $n)
+                            <li>
+                                {{ $n->data['message'] ?? 'Tienes una notificación de tu renta.' }}
+                                <span class="text-sm text-yellow-200">· {{ $n->created_at->diffForHumans() }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
+            @endif
+
+            {{-- ACCESOS RÁPIDOS --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+                <a href="{{ route('customer.catalog') }}" class="blockbuster-card text-center text-yellow-300">🎞️ Catálogo</a>
+                <a href="{{ route('customer.rentals') }}" class="blockbuster-card text-center text-yellow-300">📦 Mis rentas</a>
+                <a href="{{ route('customer.payments') }}" class="blockbuster-card text-center text-yellow-300">💳 Pagos</a>
+                <a href="{{ route('customer.charges') }}" class="blockbuster-card text-center text-yellow-300">📑 Cargos</a>
+            </div>
+
+            {{-- BUSCADOR --}}
+            <div class="blockbuster-card mb-10">
+                <h2 class="text-2xl font-semibold text-yellow-400 mb-4">🔍 Buscar Películas</h2>
+                <form method="GET" action="{{ route('customer.catalog') }}" class="grid md:grid-cols-6 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm mb-1 text-yellow-200">Título</label>
+                        <input type="text" name="title" value="{{ request('title') }}"
+                            class="w-full rounded-md bg-[#0b0f17] border border-yellow-500 px-3 py-2 text-white placeholder-yellow-200 focus:ring-2 focus:ring-yellow-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm mb-1 text-yellow-200">Tienda</label>
+                        <select name="store_id"
+                            class="w-full rounded-md bg-[#0b0f17] border border-yellow-500 px-3 py-2 text-white appearance-none focus:ring-2 focus:ring-yellow-400">
+                            <option value="">Todas</option>
+                            @foreach($stores as $s)
+                                <option value="{{ $s->store_id }}" @selected(request('store_id') == $s->store_id)>{{ $s->store_id }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm mb-1 text-yellow-200">Categoría</label>
+                        <select name="category_id"
+                            class="w-full rounded-md bg-[#0b0f17] border border-yellow-500 px-3 py-2 text-white appearance-none focus:ring-2 focus:ring-yellow-400">
+                            <option value="">Todas</option>
+                            @foreach($categories as $c)
+                                <option value="{{ $c->category_id }}" @selected(request('category_id') == $c->category_id)>{{ $c->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm mb-1 text-yellow-200">Idioma</label>
+                        <select name="language_id"
+                            class="w-full rounded-md bg-[#0b0f17] border border-yellow-500 px-3 py-2 text-white appearance-none focus:ring-2 focus:ring-yellow-400">
+                            <option value="">Todos</option>
+                            @foreach($languages as $l)
+                                <option value="{{ $l->language_id }}" @selected(request('language_id') == $l->language_id)>{{ $l->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <label class="inline-flex items-center text-yellow-200">
+                            <input type="checkbox" name="available_only" value="1" class="mr-2 bg-[#0b0f17] border-yellow-500" @checked(request()->boolean('available_only'))>
+                            Solo disponibles
+                        </label>
+                    </div>
+
+                    <div class="md:col-span-6 text-right">
+                        <button class="blockbuster-btn">Buscar</button>
+                    </div>
+                </form>
+            </div>
+
+            {{-- INFO PILL --}}
+            <div class="flex flex-wrap gap-3 text-xs text-white/70">
+                <span class="pill">Búsqueda por título, categoría, actor, idioma</span>
+                <span class="pill">Disponibilidad por sucursal</span>
+                <span class="pill">Historial de rentas & pagos</span>
             </div>
         </div>
     </div>
